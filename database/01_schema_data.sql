@@ -1,4 +1,4 @@
-CREATE DATABASE hospital_management;
+USE hospital_management;
 
 CREATE TABLE Department (
     department_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -128,3 +128,18 @@ CREATE TABLE Bill_Item (
     FOREIGN KEY (bill_id)
         REFERENCES Bill(bill_id)
 );
+    -- Add status for soft-delete/deactivation
+    ALTER TABLE Patient
+    ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'Active';
+
+    ALTER TABLE Doctor
+    ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'Active';
+
+    -- Data validation constraints for medicines
+    ALTER TABLE Medicine
+    ADD CONSTRAINT chk_medicine_price
+    CHECK (unit_price >= 0);
+
+    ALTER TABLE Medicine
+    ADD CONSTRAINT chk_stock_quantity
+    CHECK (stock_quantity >= 0);
