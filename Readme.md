@@ -71,6 +71,15 @@ database operations and generating operational information.
 - Today's appointments
 - Pending laboratory tests
 
+### Data Analytics (Python)
+- Monthly billed and collected revenue trends
+- Appointment volume and status distribution
+- Department-wise appointment analysis
+- Doctor workload summary
+- Monthly patient registration trends
+- Laboratory test volume and cost summary
+- Downloadable aggregate CSV reports
+
 ## 🗄️ Database Design
 
 The database consists of the following major entities:
