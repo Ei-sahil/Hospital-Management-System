@@ -22,7 +22,15 @@ def query_df(connection, query):
     try:
         cursor.execute(query)
         rows = cursor.fetchall()
-        return pd.DataFrame(rows)
+        frame = pd.DataFrame(rows)
+        # MySQL DECIMAL values arrive as Decimal objects; convert numeric
+        # columns so Streamlit charts and Pandas calculations handle them.
+        for column in frame.columns:
+            if frame[column].dtype == "object":
+                numeric = pd.to_numeric(frame[column], errors="coerce")
+                if numeric.notna().any():
+                    frame[column] = numeric
+        return frame
     finally:
         cursor.close()
 
