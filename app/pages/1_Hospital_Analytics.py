@@ -16,6 +16,17 @@ st.caption(
     "This page uses aggregate data and does not display patient-level medical details."
 )
 
+def query_df(connection, query):
+    """Execute a SELECT query and return its rows as a Pandas DataFrame."""
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        return pd.DataFrame(rows)
+    finally:
+        cursor.close()
+
+
 @st.cache_data(ttl=60, show_spinner=False)
 def load_analytics():
     """Load aggregate datasets from MySQL; cache briefly to reduce database queries."""
@@ -23,7 +34,7 @@ def load_analytics():
     try:
         # Revenue is aggregated per bill first to avoid multiplying bill totals
         # when joining a bill to its individual line items.
-        revenue = pd.read_sql(
+        revenue = query_df(connection,
             """
             SELECT
                 DATE_FORMAT(b.bill_date, '%Y-%m') AS month,
@@ -42,7 +53,6 @@ def load_analytics():
             GROUP BY DATE_FORMAT(b.bill_date, '%Y-%m')
             ORDER BY month
             """,
-            connection
         )
 
         appointments = pd.read_sql(
