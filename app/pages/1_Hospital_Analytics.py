@@ -55,42 +55,32 @@ def load_analytics():
             """,
         )
 
-        appointments = pd.read_sql(
-            """
+        appointments = query_df(connection, """
             SELECT
                 DATE_FORMAT(appointment_date, '%Y-%m') AS month,
                 COUNT(*) AS appointments
             FROM Appointment
             GROUP BY DATE_FORMAT(appointment_date, '%Y-%m')
             ORDER BY month
-            """,
-            connection
-        )
+            """)
 
-        appointment_status = pd.read_sql(
-            """
+        appointment_status = query_df(connection, """
             SELECT status, COUNT(*) AS total
             FROM Appointment
             GROUP BY status
             ORDER BY total DESC
-            """,
-            connection
-        )
+            """)
 
-        departments = pd.read_sql(
-            """
+        departments = query_df(connection, """
             SELECT dep.department_name, COUNT(a.appointment_id) AS appointments
             FROM Department dep
             LEFT JOIN Doctor d ON d.department_id = dep.department_id
             LEFT JOIN Appointment a ON a.doctor_id = d.doctor_id
             GROUP BY dep.department_id, dep.department_name
             ORDER BY appointments DESC, dep.department_name
-            """,
-            connection
-        )
+            """)
 
-        doctors = pd.read_sql(
-            """
+        doctors = query_df(connection, """
             SELECT
                 CONCAT('Dr. ', d.first_name, ' ', d.last_name) AS doctor_name,
                 d.specialization,
@@ -100,36 +90,27 @@ def load_analytics():
             GROUP BY d.doctor_id, d.first_name, d.last_name, d.specialization
             ORDER BY appointments DESC, doctor_name
             LIMIT 10
-            """,
-            connection
-        )
+            """)
 
-        patients = pd.read_sql(
-            """
+        patients = query_df(connection, """
             SELECT
                 DATE_FORMAT(registration_date, '%Y-%m') AS month,
                 COUNT(*) AS new_patients
             FROM Patient
             GROUP BY DATE_FORMAT(registration_date, '%Y-%m')
             ORDER BY month
-            """,
-            connection
-        )
+            """)
 
-        lab_tests = pd.read_sql(
-            """
+        lab_tests = query_df(connection, """
             SELECT test_name, COUNT(*) AS total_tests,
                    ROUND(SUM(cost), 2) AS total_cost
             FROM Lab_Test
             GROUP BY test_name
             ORDER BY total_tests DESC, test_name
             LIMIT 10
-            """,
-            connection
-        )
+            """)
 
-        summary = pd.read_sql(
-            """
+        summary = query_df(connection, """
             SELECT
                 (SELECT COUNT(*) FROM Patient WHERE status = 'Active') AS active_patients,
                 (SELECT COUNT(*) FROM Doctor WHERE status = 'Active') AS active_doctors,
@@ -143,9 +124,7 @@ def load_analytics():
                    FROM Bill b
                    LEFT JOIN Bill_Item bi ON bi.bill_id = b.bill_id
                   WHERE b.payment_status = 'Paid') AS collected_amount
-            """,
-            connection
-        )
+            """)
         return revenue, appointments, appointment_status, departments, doctors, patients, lab_tests, summary
     finally:
         connection.close()
