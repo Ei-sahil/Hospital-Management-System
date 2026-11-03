@@ -28,7 +28,7 @@ def query_df(connection, query):
         for column in frame.columns:
             if frame[column].dtype == "object":
                 numeric = pd.to_numeric(frame[column], errors="coerce")
-                if numeric.notna().any():
+                if numeric.notna().sum() == frame[column].notna().sum():
                     frame[column] = numeric
         return frame
     finally:
